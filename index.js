@@ -8,6 +8,11 @@ app.use(morgan('tiny'))
 const cors = require('cors')
 app.use(cors())
 
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+
 
 let persons = [
   { 
@@ -77,28 +82,26 @@ app.delete('/api/persons/:id', (request, response) => {
 const randomId = () => Math.random() * (1000000000 - persons.length) + persons.length
 
 app.post('/api/persons/',(request, response) => {
+  const person = request.body
+  console.log(person)
   
-  if (!request.body.name ) {
+  if (!person.name ) {
     return response.status(400).json({ 
       error: 'name is missing' 
     })
-  } else if (!request.body.number){
+  } else if (!person.number){
     return response.status(400).json({ 
       error: 'number is missing' 
     })
-  }else if (persons.find(entry => request.body.name === entry.name)){
+  }else if (persons.find(entry => person.name === entry.name)){
     return response.status(400).json({ 
       error: 'name must be unique'
     })
   }
   
-
-  const person = request.body
   person.id = randomId()
   persons = persons.concat(person)
   response.json(person)
-  console.log(person)
-
 })
 
 
