@@ -44,6 +44,7 @@ app.get('/api/persons/:id', (request, response) => {
 
 app.get('/api/persons',(request, response) => {
   response.json(persons)
+  console.log(request)
 })
 
   const options = {
