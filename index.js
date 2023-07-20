@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const morgan = require('morgan') // logs messages to console 
+const morgan = require('morgan') // logs messages to console
 require('dotenv').config()
 
 const Person = require('./models/person')
@@ -47,67 +47,67 @@ app.get('/api/persons', (request, response) => {
 app.post('/api/persons/',(request, response, next) => {
   const body = request.body
   console.log(body)
-  
+
   if (!body.name) {
-    return response.status(400).json({error: 'name is missing'})
+    return response.status(400).json({ error: 'name is missing' })
   } else if (!body.number) {
-    return response.status(400).json({error: 'number is missing'})
+    return response.status(400).json({ error: 'number is missing' })
   }
-  
+
   const person = new Person({
     name: body.name,
     number: body.number,
   })
 
   person.save()
-  .then(savedPerson =>{
-    response.json(savedPerson)
-  })
-  .catch(error => next(error))
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch(error => next(error))
 
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
-  .then(person =>{
-    if (person){
-      response.json(person)
-    } else {
-      response.status(404).end()
-    } 
-  })
-  .catch(error => next(error))
+    .then(person => {
+      if (person){
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
   const { name, number } = request.body
 
   Person.findByIdAndUpdate(
-    request.params.id, 
+    request.params.id,
     { name, number },
     { new: true, runValidators: true, context: 'query' }
-  ) 
+  )
     .then(updatedPerson => {
       response.json(updatedPerson)
     })
     .catch(error => next(error))
 })
 
-  const options = {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    timeZoneName: 'short',
-    timeZone: 'long'
-  }
-  options.timeZone = "EET";
+const options = {
+  weekday: 'short',
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+  timeZoneName: 'short',
+  timeZone: 'long'
+}
+options.timeZone = 'EET'
 
-app.get('/info',(request, response)=> {
-  Person.countDocuments({}) 
+app.get('/info',(request, response, next) => {
+  Person.countDocuments({})
     .then((numberOfPersons) => {
       const currentTime = new Date().toLocaleString('en-FI', options)
       response.send(`<p>Phonebook has info for ${numberOfPersons} people</p> <p>${currentTime} (Eastern European Standard Time)</p>`)
@@ -116,17 +116,13 @@ app.get('/info',(request, response)=> {
     .catch((error) => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
 })
-
-// (not needed in 3.12 anymore but was part of older excercise) const randomId = () => Math.random() * (1000000000 - persons.length) + persons.length
-
-
 
 // this has to be the last loaded middleware.
 app.use(unknownEndpoint)
